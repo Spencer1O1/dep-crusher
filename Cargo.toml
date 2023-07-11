@@ -2,7 +2,7 @@
 name = "dep_crusher"
 version = "0.1.0"
 edition = "2021"
-authors = "SpencerLS"
+authors = ["SpencerLS"]
 description = "Starting at a root node, traverse the dependency graph and flatten it."
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
