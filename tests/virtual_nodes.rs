@@ -152,7 +152,7 @@ fn loop_error() {
     n0.next = Some(vec![n1, n2, n3, n4]);
 
     assert_eq!(
-        Err(Some("A loop was found: [12, 8, 2]".to_owned())),
+        Err(Some("A dependency loop was found: [12, 8, 2]".to_owned())),
         n0.dep_crush()
     )
 }

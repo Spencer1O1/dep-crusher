@@ -15,17 +15,9 @@ pub trait DepNode: Sized {
         match visit_node::<Self>(self, &mut visited, &mut out) {
             Ok(()) => Ok(out),
             Err(VisitError::LoopCompleted(ids)) => {
-                println!("{:?}", ids);
-                Err(Some(format!("A loop was found: {:?}", ids)))
+                Err(Some(format!("A dependency loop was found: {:?}", ids)))
             }
-            Err(VisitError::LoopPropagate(id, ids)) => {
-                println!("Loop propagating at {id}, {:?}", ids);
-                Err(Some("An error occured while visiting nodes...".to_owned()))
-            }
-            Err(VisitError::LoopDetected(id)) => {
-                println!("Loop detected at {id}");
-                Err(Some("An error occured while visiting nodes...".to_owned()))
-            } // Err(_) => Err(Some("An error occured while visiting nodes...".to_owned())),
+            Err(_) => Err(Some("An error occured while visiting nodes...".to_owned())),
         }
     }
 }
