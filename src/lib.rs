@@ -6,7 +6,7 @@ pub trait DepNode: Sized {
 
     fn get_value(&self) -> Self::Value;
     fn get_id(&self) -> DepNodeId;
-    fn get_next(&self) -> &Option<Vec<&Self>>;
+    fn get_next(&self) -> &Option<Vec<Self>>;
 
     fn dep_crush(&self) -> Result<Vec<Self::Value>, Option<String>> {
         let mut visited: HashMap<DepNodeId, bool> = HashMap::new();
@@ -15,9 +15,17 @@ pub trait DepNode: Sized {
         match visit_node::<Self>(self, &mut visited, &mut out) {
             Ok(()) => Ok(out),
             Err(VisitError::LoopCompleted(ids)) => {
+                println!("{:?}", ids);
                 Err(Some(format!("A loop was found: {:?}", ids)))
             }
-            Err(_) => Err(Some("An error occured while visiting nodes...".to_owned())),
+            Err(VisitError::LoopPropagate(id, ids)) => {
+                println!("Loop propagating at {id}, {:?}", ids);
+                Err(Some("An error occured while visiting nodes...".to_owned()))
+            }
+            Err(VisitError::LoopDetected(id)) => {
+                println!("Loop detected at {id}");
+                Err(Some("An error occured while visiting nodes...".to_owned()))
+            } // Err(_) => Err(Some("An error occured while visiting nodes...".to_owned())),
         }
     }
 }
@@ -47,22 +55,22 @@ fn visit_node<N: DepNode>(
     visited.insert(id, false);
 
     if let Some(next) = node.get_next() {
-        for &n in next {
+        for n in next {
             if let Err(e) = visit_node::<N>(n, visited, out) {
                 return match e {
                     VisitError::LoopDetected(i) => {
-                        let ids: Vec<DepNodeId> = vec![i];
+                        let ids: Vec<DepNodeId> = vec![id];
                         if id == i {
                             return Err(VisitError::LoopCompleted(ids));
                         }
-                        Err(VisitError::LoopPropagate(id, ids))
+                        Err(VisitError::LoopPropagate(i, ids))
                     }
                     VisitError::LoopPropagate(i, mut ids) => {
-                        ids.push(i);
+                        ids.push(id);
                         if id == i {
                             return Err(VisitError::LoopCompleted(ids));
                         }
-                        Err(VisitError::LoopPropagate(id, ids))
+                        Err(VisitError::LoopPropagate(i, ids))
                     }
                     VisitError::LoopCompleted(ids) => Err(VisitError::LoopCompleted(ids)),
                 };
