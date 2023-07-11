@@ -1,28 +1,28 @@
 use std::collections::HashMap;
 
 use dep_crusher::dep_node::Node as DepNode;
-use dep_crusher::dep_node::NodeId;
 
 struct Node {
-    id: NodeId,
+    id: u64,
     value: u64,
     next: Option<Vec<Self>>,
 }
 
 impl Node {
-    fn new(id: NodeId, value: u64, next: Option<Vec<Self>>) -> Node {
+    fn new(id: u64, value: u64, next: Option<Vec<Self>>) -> Node {
         Node { id, value, next }
     }
 }
 
 impl DepNode for Node {
+    type Id = u64;
     type Value = u64;
 
     fn get_value(&self) -> Self::Value {
         self.value
     }
 
-    fn get_id(&self) -> NodeId {
+    fn get_id(&self) -> Self::Id {
         self.id
     }
 
