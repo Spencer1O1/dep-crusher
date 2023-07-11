@@ -1,14 +1,16 @@
-use dep_crusher::{DepNode, DepNodeId};
 use std::collections::HashMap;
 
+use dep_crusher::dep_node::Node as DepNode;
+use dep_crusher::dep_node::NodeId;
+
 struct Node {
-    id: DepNodeId,
+    id: NodeId,
     value: u64,
     next: Option<Vec<Self>>,
 }
 
 impl Node {
-    fn new(id: DepNodeId, value: u64, next: Option<Vec<Self>>) -> Node {
+    fn new(id: NodeId, value: u64, next: Option<Vec<Self>>) -> Node {
         Node { id, value, next }
     }
 }
@@ -20,7 +22,7 @@ impl DepNode for Node {
         self.value
     }
 
-    fn get_id(&self) -> DepNodeId {
+    fn get_id(&self) -> NodeId {
         self.id
     }
 
@@ -94,7 +96,7 @@ fn basic_graph() {
 
     assert_eq!(
         Ok(vec![10, 13, 11, 5, 6, 1, 7, 14, 12, 8, 2, 3, 9, 4, 0]),
-        n0.dep_crush()
+        n0.crush()
     )
 }
 
@@ -152,7 +154,7 @@ fn loop_error() {
     n0.next = Some(vec![n1, n2, n3, n4]);
 
     assert_eq!(
-        Err(Some("A dependency loop was found: [12, 8, 2]".to_owned())),
-        n0.dep_crush()
+        Err(dep_crusher::result::Error::DependencyLoop(vec![12, 8, 2])),
+        n0.crush()
     )
 }
