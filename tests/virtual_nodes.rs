@@ -1,14 +1,14 @@
-use dep_crusher::DepNode;
+use dep_crusher::{DepNode, DepNodeId};
 use std::collections::HashMap;
 
 struct Node<'a> {
-    id: u64,
+    id: DepNodeId,
     value: u64,
     next: Option<Vec<&'a Self>>,
 }
 
 impl Node<'_> {
-    fn new(id: u64, value: u64, next: Option<Vec<&Self>>) -> Node {
+    fn new(id: DepNodeId, value: u64, next: Option<Vec<&Self>>) -> Node {
         Node { id, value, next }
     }
 }
@@ -20,7 +20,7 @@ impl DepNode for Node<'_> {
         self.value
     }
 
-    fn get_id(&self) -> u64 {
+    fn get_id(&self) -> DepNodeId {
         self.id
     }
 
@@ -84,6 +84,12 @@ fn virtual_nodes() {
 
     assert_eq!(
         vec![10, 13, 11, 5, 6, 1, 7, 14, 12, 8, 2, 3, 9, 4, 0],
-        n0.dep_crush()
+        match n0.dep_crush() {
+            Ok(v) => v,
+            Err(e) => match e {
+                Some(msg) => panic!("{}", msg),
+                None => panic!("Something went wrong crushing the dependencies..."),
+            },
+        }
     )
 }
