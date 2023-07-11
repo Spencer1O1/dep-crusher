@@ -9,10 +9,9 @@ pub trait DepNode: Sized {
     fn get_next(&self) -> &Option<Vec<Self>>;
 
     fn dep_crush(&self) -> Result<Vec<Self::Value>, Option<String>> {
-        let mut visited: HashMap<DepNodeId, bool> = HashMap::new();
         let mut out: Vec<Self::Value> = Vec::new();
 
-        match visit_node::<Self>(self, &mut visited, &mut out) {
+        match visit_node::<Self>(self, &mut HashMap::new(), &mut out) {
             Ok(()) => Ok(out),
             Err(VisitError::LoopCompleted(ids)) => {
                 Err(Some(format!("A dependency loop was found: {:?}", ids)))
