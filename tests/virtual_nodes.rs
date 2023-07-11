@@ -86,10 +86,8 @@ fn virtual_nodes() {
         vec![10, 13, 11, 5, 6, 1, 7, 14, 12, 8, 2, 3, 9, 4, 0],
         match n0.dep_crush() {
             Ok(v) => v,
-            Err(e) => match e {
-                Some(msg) => panic!("{}", msg),
-                None => panic!("Something went wrong crushing the dependencies..."),
-            },
+            Err(Some(msg)) => panic!("{}", msg),
+            Err(None) => panic!("Something went wrong crushing the dependencies..."),
         }
     )
 }
