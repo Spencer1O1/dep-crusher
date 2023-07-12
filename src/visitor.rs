@@ -4,7 +4,7 @@ use std::collections::HashMap;
 pub type VisitResult<N> = std::result::Result<(), VisitError<N>>;
 pub enum VisitError<N: Node> {
     LoopDetected(N),
-    LoopPropagate(Vec<N>),
+    LoopPropagate(N, Vec<N>),
     LoopCompleted(Vec<N>),
 }
 
@@ -29,17 +29,19 @@ pub fn visit_node<N: Node>(
                 return match e {
                     VisitError::<N>::LoopDetected(fail_node) => {
                         if node == fail_node {
-                            return Err(VisitError::LoopCompleted(vec![fail_node]));
+                            Err(VisitError::LoopCompleted(vec![node]))
+                        } else {
+                            Err(VisitError::LoopPropagate(fail_node, vec![node]))
                         }
-                        Err(VisitError::LoopPropagate(vec![fail_node]))
                     }
-                    VisitError::<N>::LoopPropagate(mut loop_nodes) => {
-                        if Some(&node) == loop_nodes.first() {
+                    VisitError::<N>::LoopPropagate(fail_node, mut loop_nodes) => {
+                        if node == fail_node {
                             loop_nodes.push(node);
-                            return Err(VisitError::LoopCompleted(loop_nodes));
+                            Err(VisitError::LoopCompleted(loop_nodes))
+                        } else {
+                            loop_nodes.push(node);
+                            Err(VisitError::LoopPropagate(fail_node, loop_nodes))
                         }
-                        loop_nodes.push(node);
-                        Err(VisitError::LoopPropagate(loop_nodes))
                     }
                     VisitError::<N>::LoopCompleted(loop_data) => {
                         Err(VisitError::LoopCompleted(loop_data))
