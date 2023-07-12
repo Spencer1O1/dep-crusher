@@ -3,54 +3,53 @@ use std::collections::HashMap;
 
 pub type VisitResult<N> = std::result::Result<(), VisitError<N>>;
 pub enum VisitError<N: Node> {
-    LoopDetected((N::Id, N::Value)),
-    LoopPropagate((N::Id, N::Value), Vec<(N::Id, N::Value)>),
-    LoopCompleted(Vec<(N::Id, N::Value)>),
+    LoopDetected(N),
+    LoopPropagate(Vec<N>),
+    LoopCompleted(Vec<N>),
 }
 
 pub fn visit_node<N: Node>(
-    node: &N,
+    node: N,
     visited: &mut HashMap<N::Id, bool>,
-    out: &mut Vec<N::Value>,
+    out: &mut Vec<N>,
 ) -> VisitResult<N> {
-    let id = node.get_id();
-    let value = node.get_value();
-
-    if let Some(&added) = visited.get(&id) {
+    if let Some(&added) = visited.get(&node.get_id()) {
         if added {
             return Ok(());
         } else {
-            return Err(VisitError::LoopDetected((id, value)));
+            return Err(VisitError::LoopDetected(node));
         }
     }
 
-    visited.insert(id, false);
+    visited.insert(node.get_id(), false);
 
     if let Some(next) = node.get_next() {
         for n in next {
-            if let Err(e) = visit_node::<N>(&n, visited, out) {
+            if let Err(e) = visit_node::<N>(n, visited, out) {
                 return match e {
-                    VisitError::<N>::LoopDetected(e) => {
-                        let es: Vec<(N::Id, N::Value)> = vec![(id, value)];
-                        if id == e.0 {
-                            return Err(VisitError::LoopCompleted(es));
+                    VisitError::<N>::LoopDetected(fail_node) => {
+                        if node == fail_node {
+                            return Err(VisitError::LoopCompleted(vec![fail_node]));
                         }
-                        Err(VisitError::LoopPropagate(e, es))
+                        Err(VisitError::LoopPropagate(vec![fail_node]))
                     }
-                    VisitError::<N>::LoopPropagate(e, mut es) => {
-                        es.push((id, value));
-                        if id == e.0 {
-                            return Err(VisitError::LoopCompleted(es));
+                    VisitError::<N>::LoopPropagate(mut loop_nodes) => {
+                        if Some(&node) == loop_nodes.first() {
+                            loop_nodes.push(node);
+                            return Err(VisitError::LoopCompleted(loop_nodes));
                         }
-                        Err(VisitError::LoopPropagate(e, es))
+                        loop_nodes.push(node);
+                        Err(VisitError::LoopPropagate(loop_nodes))
                     }
-                    VisitError::<N>::LoopCompleted(es) => Err(VisitError::LoopCompleted(es)),
+                    VisitError::<N>::LoopCompleted(loop_data) => {
+                        Err(VisitError::LoopCompleted(loop_data))
+                    }
                 };
             };
         }
     }
 
-    visited.insert(id, true);
-    out.push(value);
+    visited.insert(node.get_id(), true);
+    out.push(node);
     Ok(())
 }
