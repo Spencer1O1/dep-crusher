@@ -13,7 +13,7 @@ pub fn crush<N: Node>(node: &N) -> Result<N::Id, N::Value> {
 
     match visit_node::<N>(node, &mut HashMap::new(), &mut out) {
         Ok(()) => Ok(out),
-        Err(VisitError::<N>::LoopCompleted(ids)) => Err(Error::DependencyLoop(ids)),
+        Err(VisitError::<N>::LoopCompleted(es)) => Err(Error::DependencyLoop(es)),
         Err(_) => Err(Error::Unknown),
     }
 }

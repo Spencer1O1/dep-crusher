@@ -26,8 +26,8 @@ impl DepNode for Node {
         self.id
     }
 
-    fn get_next(&self) -> &Option<Vec<Self>> {
-        &self.next
+    fn get_next(&self) -> Option<Vec<Self>> {
+        self.next.clone()
     }
 }
 
@@ -154,7 +154,11 @@ fn loop_error() {
     n0.next = Some(vec![n1, n2, n3, n4]);
 
     assert_eq!(
-        Err(dep_crusher::result::Error::DependencyLoop(vec![12, 8, 2])),
+        Err(dep_crusher::result::Error::DependencyLoop(vec![
+            (12, 12),
+            (8, 8),
+            (2, 2)
+        ])),
         n0.crush()
     )
 }

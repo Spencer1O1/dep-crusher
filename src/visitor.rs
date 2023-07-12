@@ -3,9 +3,9 @@ use std::collections::HashMap;
 
 pub type VisitResult<N> = std::result::Result<(), VisitError<N>>;
 pub enum VisitError<N: Node> {
-    LoopDetected(N::Id),
-    LoopPropagate(N::Id, Vec<N::Id>),
-    LoopCompleted(Vec<N::Id>),
+    LoopDetected((N::Id, N::Value)),
+    LoopPropagate((N::Id, N::Value), Vec<(N::Id, N::Value)>),
+    LoopCompleted(Vec<(N::Id, N::Value)>),
 }
 
 pub fn visit_node<N: Node>(
@@ -14,12 +14,13 @@ pub fn visit_node<N: Node>(
     out: &mut Vec<N::Value>,
 ) -> VisitResult<N> {
     let id = node.get_id();
+    let value = node.get_value();
 
     if let Some(&added) = visited.get(&id) {
         if added {
             return Ok(());
         } else {
-            return Err(VisitError::LoopDetected(id));
+            return Err(VisitError::LoopDetected((id, value)));
         }
     }
 
@@ -27,29 +28,29 @@ pub fn visit_node<N: Node>(
 
     if let Some(next) = node.get_next() {
         for n in next {
-            if let Err(e) = visit_node::<N>(n, visited, out) {
+            if let Err(e) = visit_node::<N>(&n, visited, out) {
                 return match e {
-                    VisitError::<N>::LoopDetected(i) => {
-                        let ids: Vec<N::Id> = vec![id];
-                        if id == i {
-                            return Err(VisitError::LoopCompleted(ids));
+                    VisitError::<N>::LoopDetected(e) => {
+                        let es: Vec<(N::Id, N::Value)> = vec![(id, value)];
+                        if id == e.0 {
+                            return Err(VisitError::LoopCompleted(es));
                         }
-                        Err(VisitError::LoopPropagate(i, ids))
+                        Err(VisitError::LoopPropagate(e, es))
                     }
-                    VisitError::<N>::LoopPropagate(i, mut ids) => {
-                        ids.push(id);
-                        if id == i {
-                            return Err(VisitError::LoopCompleted(ids));
+                    VisitError::<N>::LoopPropagate(e, mut es) => {
+                        es.push((id, value));
+                        if id == e.0 {
+                            return Err(VisitError::LoopCompleted(es));
                         }
-                        Err(VisitError::LoopPropagate(i, ids))
+                        Err(VisitError::LoopPropagate(e, es))
                     }
-                    VisitError::<N>::LoopCompleted(ids) => Err(VisitError::LoopCompleted(ids)),
+                    VisitError::<N>::LoopCompleted(es) => Err(VisitError::LoopCompleted(es)),
                 };
             };
         }
     }
 
     visited.insert(id, true);
-    out.push(node.get_value());
+    out.push(value);
     Ok(())
 }
