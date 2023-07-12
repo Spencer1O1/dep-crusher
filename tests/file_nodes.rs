@@ -66,30 +66,39 @@ impl Node for FileNode {
     }
 }
 
+#[cfg(target_family = "windows")]
 #[test]
 fn basic_file_graph() {
     let index: FileNode = FileNode {
         path: PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/test_files")),
         name: PathBuf::from("0"),
     };
+    let test_file_str = index
+        .path
+        .to_str()
+        .expect("Failed to get test_files path string");
 
+    // I know all the paths are weird, but I just wanted a quick implementation for this test.
+    // In a production use case you'd probably clean up the paths when you combine them, so
+    // you wouldn't have stuff like "\\./". Also this test will probably only pass on windows
+    // because that's what I used to generate all the paths.
     assert_eq!(
         Ok(vec![
-            "C:\\Dev\\dep-crusher/tests/test_files\\./a\\./aa\\.\\10".to_owned(),
-            "C:\\Dev\\dep-crusher/tests/test_files\\./a\\./aa\\../../b\\./ba\\13".to_owned(),
-            "C:\\Dev\\dep-crusher/tests/test_files\\./a\\./aa\\../../b\\11".to_owned(),
-            "C:\\Dev\\dep-crusher/tests/test_files\\./a\\./aa\\5".to_owned(),
-            "C:\\Dev\\dep-crusher/tests/test_files\\./a\\.\\6".to_owned(),
-            "C:\\Dev\\dep-crusher/tests/test_files\\./a\\1".to_owned(),
-            "C:\\Dev\\dep-crusher/tests/test_files\\./a\\..\\7".to_owned(),
-            "C:\\Dev\\dep-crusher/tests/test_files\\./a\\./ab\\.\\../..\\14".to_owned(),
-            "C:\\Dev\\dep-crusher/tests/test_files\\./a\\./ab\\.\\12".to_owned(),
-            "C:\\Dev\\dep-crusher/tests/test_files\\./a\\./ab\\8".to_owned(),
-            "C:\\Dev\\dep-crusher/tests/test_files\\./a\\2".to_owned(),
-            "C:\\Dev\\dep-crusher/tests/test_files\\.\\3".to_owned(),
-            "C:\\Dev\\dep-crusher/tests/test_files\\./b\\../a\\9".to_owned(),
-            "C:\\Dev\\dep-crusher/tests/test_files\\./b\\4".to_owned(),
-            "C:\\Dev\\dep-crusher/tests/test_files\\0".to_owned()
+            test_file_str.to_owned() + "\\./a\\./aa\\.\\10",
+            test_file_str.to_owned() + "\\./a\\./aa\\../../b\\./ba\\13",
+            test_file_str.to_owned() + "\\./a\\./aa\\../../b\\11",
+            test_file_str.to_owned() + "\\./a\\./aa\\5",
+            test_file_str.to_owned() + "\\./a\\.\\6",
+            test_file_str.to_owned() + "\\./a\\1",
+            test_file_str.to_owned() + "\\./a\\..\\7",
+            test_file_str.to_owned() + "\\./a\\./ab\\.\\../..\\14",
+            test_file_str.to_owned() + "\\./a\\./ab\\.\\12",
+            test_file_str.to_owned() + "\\./a\\./ab\\8",
+            test_file_str.to_owned() + "\\./a\\2",
+            test_file_str.to_owned() + "\\.\\3",
+            test_file_str.to_owned() + "\\./b\\../a\\9",
+            test_file_str.to_owned() + "\\./b\\4",
+            test_file_str.to_owned() + "\\0"
         ]),
         dep_crusher::crush(&index)
     );
