@@ -14,10 +14,9 @@ struct FileNode {
 impl FileNode {
     fn new(rel_dir: &str, name: &str) -> Self {
         Self {
-            path: Path::join(
-                Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/tests/test_files/")),
-                PathBuf::from(rel_dir),
-            ),
+            path: Path::new(env!("CARGO_MANIFEST_DIR"))
+                .join(["tests", "test_files"].iter().collect::<PathBuf>())
+                .join(PathBuf::from(rel_dir)),
             name: PathBuf::from(name),
         }
     }
@@ -33,7 +32,7 @@ impl Node for FileNode {
     type Id = u64;
 
     fn get_id(&self) -> Self::Id {
-        get_id_from_path(Path::join(&self.path, &self.name))
+        get_id_from_path(self.path.join(&self.name))
     }
 
     fn get_next(&self) -> Option<Vec<Self>> {
@@ -58,6 +57,7 @@ impl Node for FileNode {
 fn basic_file_graph() {
     let index = FileNode::new("", "0");
 
+    let ordered = dep_crusher::crush(index);
     assert_eq!(
         Ok(vec![
             FileNode::new("a/aa", "10"),
@@ -76,6 +76,13 @@ fn basic_file_graph() {
             FileNode::new("b", "4"),
             FileNode::new("", "0"),
         ]),
-        dep_crusher::crush(index)
+        ordered
     );
+
+    if let Ok(mut ord) = ordered {
+        for n in &mut ord {
+            n.path = n.path.canonicalize().expect("Failed to canonicalize path!");
+        }
+        println!("{:#?}", ord);
+    }
 }
