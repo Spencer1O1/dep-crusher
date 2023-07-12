@@ -7,7 +7,7 @@ use dep_crusher::dep_node::Node;
 use regex::Regex;
 use same_file::Handle;
 
-pub fn get_id_from_path<P: AsRef<Path>>(p: P) -> u64 {
+pub fn get_id_from_path(p: PathBuf) -> u64 {
     let handle: Handle = Handle::from_path(p).expect("Couldn't get file handle from path");
     calculate_file_hash(&handle)
 }
