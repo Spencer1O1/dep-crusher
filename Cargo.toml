@@ -1,6 +1,6 @@
 [package]
 name = "dep_crusher"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["SpencerLS"]
 description = "Starting at a root node, traverse the dependency graph and flatten it."
