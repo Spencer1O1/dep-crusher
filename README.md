@@ -3,12 +3,17 @@
 Starting at a root node, traverse its entire dependency graph and flatten it into a top-to-bottom list. Nodes are a trait implementation, allowing dep_crusher to have generic, widespread use.
 
 ## Installation
+
 There are two easy installation options.
+
 1. Use [Cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html) from the terminal
+
 ```bash
 cargo add dep_crusher
 ```
-2. Add the dependency to your ```Cargo.toml``` file
+
+2. Add the dependency to your `Cargo.toml` file
+
 ```toml
 [dependencies]
 dep_crusher = "0.1.0"
@@ -16,7 +21,8 @@ dep_crusher = "0.1.0"
 
 ## Usage
 
-1. Implement the ```dep_crusher::dep_node::Node``` trait:
+1. Implement the `dep_crusher::dep_node::Node` trait:
+
 ```rust
 #[derive(Debug)]
 struct MyStruct {
@@ -43,14 +49,15 @@ impl dep_crusher::dep_node::Node for MyStruct {
 ```
 
 2. Crush the dependencies!
+
 ```rust
-let myStruct = MyStruct {
+let my_struct = MyStruct {
   // ...
 }
 
-let ordered_dependencies = myStruct.crush();
+let ordered_dependencies = my_struct.crush();
 // OR
-let ordered_dependencies = dep_crusher::crush(myStruct);
+let ordered_dependencies = dep_crusher::crush(my_struct);
 
 // Returns dep_crusher::result::Result<MyStruct>
 // The Ok variant is Vec<MyStruct>
