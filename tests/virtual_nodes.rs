@@ -86,26 +86,12 @@ fn basic_graph() {
         nodes.push(Node::new(i, test_mode));
     }
 
-    assert_eq!(
-        Ok(vec![
-            *nodes.get(10).unwrap(),
-            *nodes.get(13).unwrap(),
-            *nodes.get(11).unwrap(),
-            *nodes.get(5).unwrap(),
-            *nodes.get(6).unwrap(),
-            *nodes.get(1).unwrap(),
-            *nodes.get(7).unwrap(),
-            *nodes.get(14).unwrap(),
-            *nodes.get(12).unwrap(),
-            *nodes.get(8).unwrap(),
-            *nodes.get(2).unwrap(),
-            *nodes.get(3).unwrap(),
-            *nodes.get(9).unwrap(),
-            *nodes.get(4).unwrap(),
-            *nodes.get(0).unwrap(),
-        ]),
-        nodes.get(0).unwrap().crush()
-    )
+    let correct_ordered_nodes: Vec<Node> = [10, 13, 11, 5, 6, 1, 7, 14, 12, 8, 2, 3, 9, 4, 0]
+        .iter()
+        .map(|&i| *nodes.get(i).unwrap())
+        .collect();
+
+    assert_eq!(Ok(correct_ordered_nodes), nodes.get(0).unwrap().crush())
 }
 
 #[test]
