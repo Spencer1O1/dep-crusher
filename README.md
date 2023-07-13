@@ -1,7 +1,6 @@
 # dep_crusher
 
-Starting at a root node, traverse its dependency graph and flatten it.
-Nodes are a trait implementation, allowing dep_crusher to have generic, widespread use.
+Starting at a root node, traverse its entire dependency graph and flatten it into a top-to-bottom list. Nodes are a trait implementation, allowing dep_crusher to have generic, widespread use.
 
 ## Installation
 There are two easy installation options.
