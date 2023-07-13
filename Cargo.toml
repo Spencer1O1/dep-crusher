@@ -9,6 +9,7 @@ readme = "README.md"
 keywords = ["dependency", "graph", "tree"]
 categories = ["algorithms", "data-structures", "rust-patterns"]
 license = "MIT OR Apache-2.0"
+exclude = ["tests/*"]
 
 [dev-dependencies]
 regex = "1.9.1"
