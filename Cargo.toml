@@ -4,8 +4,11 @@ version = "0.1.0"
 edition = "2021"
 authors = ["SpencerLS"]
 description = "Starting at a root node, traverse the dependency graph and flatten it."
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+repository = "https://github.com/Spencer1O1/dep-crusher/"
+readme = "README.md"
+keywords = ["dependency", "graph", "tree"]
+categories = ["algorithms", "data-structures", "rust-patterns"]
+license = "MIT OR Apache-2.0"
 
 [dev-dependencies]
 regex = "1.9.1"
