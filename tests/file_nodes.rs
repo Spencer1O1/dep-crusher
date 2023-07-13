@@ -35,20 +35,17 @@ impl Node for FileNode {
         get_id_from_path(self.path.join(&self.name))
     }
 
-    fn get_next(&self) -> Option<Vec<Self>> {
-        let imports = get_imports(&self.path, &self.name);
-
-        match imports {
-            Some(i) => Some(
-                i.iter()
-                    .map(|x| x.to_owned())
-                    .map(|x| FileNode {
-                        path: x.0,
-                        name: x.1,
-                    })
-                    .collect::<Vec<FileNode>>(),
-            ),
-            None => None,
+    fn get_next(&self) -> Vec<Self> {
+        match get_imports(&self.path, &self.name) {
+            Some(i) => i
+                .iter()
+                .map(|x| x.to_owned())
+                .map(|x| FileNode {
+                    path: x.0,
+                    name: x.1,
+                })
+                .collect::<Vec<FileNode>>(),
+            None => Vec::new(),
         }
     }
 }
@@ -80,6 +77,7 @@ fn basic_file_graph() {
     );
 
     if let Ok(mut ord) = ordered {
+        // Do something with the ordered list
         for n in &mut ord {
             n.path = n.path.canonicalize().expect("Failed to canonicalize path!");
         }

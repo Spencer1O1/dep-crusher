@@ -26,38 +26,34 @@ pub fn visit_node<N: Node>(
 
     visited.insert(node.get_id(), false);
 
-    if let Some(next) = node.get_next() {
-        for n in next {
-            if let Err(e) = visit_node::<N>(n, visited, out) {
-                return match e {
-                    VisitError::Internal(InternalError::LoopDetected(fail_node)) => {
-                        if node == fail_node {
-                            Err(VisitError::Loop(vec![node]))
-                        } else {
-                            Err(VisitError::Internal(InternalError::LoopPropagate(
-                                fail_node,
-                                vec![node],
-                            )))
-                        }
+    let next = node.get_next();
+    for n in next {
+        if let Err(e) = visit_node::<N>(n, visited, out) {
+            return match e {
+                VisitError::Internal(InternalError::LoopDetected(fail_node)) => {
+                    if node == fail_node {
+                        Err(VisitError::Loop(vec![node]))
+                    } else {
+                        Err(VisitError::Internal(InternalError::LoopPropagate(
+                            fail_node,
+                            vec![node],
+                        )))
                     }
-                    VisitError::Internal(InternalError::LoopPropagate(
-                        fail_node,
-                        mut loop_nodes,
-                    )) => {
-                        if node == fail_node {
-                            loop_nodes.push(node);
-                            Err(VisitError::Loop(loop_nodes))
-                        } else {
-                            loop_nodes.push(node);
-                            Err(VisitError::Internal(InternalError::LoopPropagate(
-                                fail_node, loop_nodes,
-                            )))
-                        }
+                }
+                VisitError::Internal(InternalError::LoopPropagate(fail_node, mut loop_nodes)) => {
+                    if node == fail_node {
+                        loop_nodes.push(node);
+                        Err(VisitError::Loop(loop_nodes))
+                    } else {
+                        loop_nodes.push(node);
+                        Err(VisitError::Internal(InternalError::LoopPropagate(
+                            fail_node, loop_nodes,
+                        )))
                     }
-                    VisitError::Loop(loop_data) => Err(VisitError::Loop(loop_data)),
-                };
+                }
+                VisitError::Loop(loop_data) => Err(VisitError::Loop(loop_data)),
             };
-        }
+        };
     }
 
     visited.insert(node.get_id(), true);

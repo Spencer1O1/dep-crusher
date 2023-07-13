@@ -24,7 +24,6 @@ dep_crusher = "0.1.0"
 1. Implement the `dep_crusher::dep_node::Node` trait:
 
 ```rust
-#[derive(Debug)]
 struct MyStruct {
     // ...
 }
@@ -42,8 +41,8 @@ impl dep_crusher::dep_node::Node for MyStruct {
         // Get a unique identifier of MyStruct
     }
 
-    fn get_next(&self) -> Option<Vec<Self>> {
-        // Get and return the next MyStructs as an option
+    fn get_next(&self) -> Vec<Self> {
+        // Get and return the next Vec<MyStruct>
     }
 }
 ```
@@ -73,4 +72,5 @@ Please make sure to update tests as appropriate.
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
+OR
 [Apache-2.0](https://choosealicense.com/licenses/apache-2.0/)
