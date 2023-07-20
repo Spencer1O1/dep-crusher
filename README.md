@@ -16,7 +16,7 @@ cargo add dep_crusher
 
 ```toml
 [dependencies]
-dep_crusher = "0.1.0"
+dep_crusher = "0.1.2"
 ```
 
 ## Usage
@@ -30,7 +30,7 @@ struct MyStruct {
 
 impl PartialEq for MyStruct {
     fn eq(&self, other: &Self) -> bool {
-        // Check equality with, for example, and ID
+        // Check equality with, for example, an ID
     }
 }
 
